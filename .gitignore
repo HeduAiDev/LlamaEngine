@@ -1,0 +1,7 @@
+3rd/libtorch/*
+build
+cmake_build*
+.vscode
+bin/*
+!bin/.gitkeep
+!3rd/*/download*
