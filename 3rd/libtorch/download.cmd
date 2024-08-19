@@ -12,7 +12,7 @@ REM Release libtorch2.4.0+cpu
 REM Debug libtorch2.4.0+cpu
 @REM curl -L -o debug.zip "https://download.pytorch.org/libtorch/cpu/libtorch-win-shared-with-deps-debug-2.4.0%%2Bcpu.zip"
 REM Release libtorch2.4.0+cu121
-@REM curl -L -o release.zip "https://download.pytorch.org/libtorch/cu121/libtorch-win-shared-with-deps-2.4.0%%2Bcu121.zip"
+curl -L -o release.zip "https://download.pytorch.org/libtorch/cu121/libtorch-win-shared-with-deps-2.4.0%%2Bcu121.zip"
 REM Debug libtorch2.4.0+cu121
 @REM curl -L -o debug.zip "https://download.pytorch.org/libtorch/cu121/libtorch-win-shared-with-deps-debug-2.4.0%%2Bcu121.zip"
 
@@ -22,6 +22,7 @@ if exist release.zip (
     tar -xf release.zip
     xcopy libtorch\* windows\Release\ /E /I /H /Y
     del release.zip
+    rmdir /S /Q libtorch
     echo release installed
 )
 
@@ -30,11 +31,10 @@ if exist debug.zip (
     mkdir windows\Debug
     tar -xf debug.zip
     xcopy libtorch\* windows\Debug\ /E /I /H /Y
-    @REM del debug.zip
+    del debug.zip
+    rmdir /S /Q libtorch
     echo debug installed
 )
 
 
 echo finish!
-pause
-

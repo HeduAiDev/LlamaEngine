@@ -1,5 +1,3 @@
-
-
 # libtorch
 string(TOLOWER ${CMAKE_HOST_SYSTEM_NAME} LOWER_HOST)
 set(LIBTORCH_PATH "${CMAKE_CURRENT_SOURCE_DIR}/libtorch/${LOWER_HOST}/${CMAKE_BUILD_TYPE}" CACHE STRING "libtorch path" FORCE)
@@ -9,10 +7,6 @@ find_package(Torch REQUIRED)
 message(STATUS "TORCH_LIBRARIES: ${TORCH_LIBRARIES}")
 message(STATUS "TORCH_INCLUDE_DIRS: ${TORCH_INCLUDE_DIRS}")
 add_library(libtorch INTERFACE)
-# PATH:GET_PARENT_PATH ref https://runebook.dev/zh/docs/cmake/manual/cmake-generator-expressions.7
-# target_link_directories(libtorch INTERFACE $<PATH:GET_PARENT_PATH, ${TORCH_LIBRARIES}>)
-# PATH:GET_FILENAME ref https://runebook.dev/zh/docs/cmake/manual/cmake-generator-expressions.7
-# target_link_libraries(libtorch INTERFACE $<PATH:GET_FILENAME, ${TORCH_LIBRARIES}>)
 target_include_directories(libtorch INTERFACE ${TORCH_INCLUDE_DIRS})
 target_link_libraries(libtorch INTERFACE ${TORCH_LIBRARIES})
 
