@@ -15,9 +15,9 @@ curl -L -o release.zip "https://download.pytorch.org/libtorch/cu121/libtorch-sha
 
 if [ -f "release.zip" ]; then
     echo "release installing..."
-    mkdir -p windows/Release
+    mkdir -p linux/Release
     unzip -q release.zip -d .
-    mv libtorch/* windows/Release/
+    mv libtorch/* linux/Release/
     rm -r libtorch
     rm release.zip
     echo "release installed"
@@ -25,9 +25,9 @@ fi
 
 if [ -f "debug.zip" ]; then
     echo "debug installing..."
-    mkdir -p windows/Debug
+    mkdir -p linux/Debug
     unzip -q debug.zip -d .
-    mv libtorch/* windows/Debug/
+    mv libtorch/* linux/Debug/
     rm -r libtorch
     rm debug.zip
     echo "debug installed"
