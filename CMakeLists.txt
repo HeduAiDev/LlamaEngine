@@ -6,7 +6,8 @@ set(CMAKE_VERBOSE_MAKEFILE ON)
 if(NOT CMAKE_BUILD_TYPE)
 set(CMAKE_BUILD_TYPE "Debug" CACHE STRING "Choose the type of build." FORCE)
 endif()
-
+set(CMAKE_PREFIX_PATH ${CMAKE_PREFIX_PATH} CACHE PATH "set CMAKE_PREFIX_PATH")
+message(STATUS "CMAKE_PREFIX_PATH: ${CMAKE_PREFIX_PATH}")
 # enable cuda
 include(CheckLanguage)
 check_language(CUDA)

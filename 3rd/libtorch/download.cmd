@@ -1,5 +1,7 @@
 @echo off
+REM windows端
 
+REM 下载libtorch
 @REM REM 设置代理（如果需要）
 @REM set PROXY=http://127.0.0.1:7890
 

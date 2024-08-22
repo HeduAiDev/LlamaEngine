@@ -1,5 +1,9 @@
 #!/bin/bash
+# linux端
+# 如果已经安装了 pytorch 可以直接使用下面的指令，无需额外安装libtorch
+# cmake -DCMAKE_PREFIX_PATH=`python -c 'import torch;print(torch.utils.cmake_prefix_path)'` -B build
 
+# 下载libtorch
 # 设置代理（如果需要）
 # PROXY="http://127.0.0.1:7890"
 

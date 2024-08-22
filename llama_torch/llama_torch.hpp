@@ -23,7 +23,7 @@ namespace llama_torch {
 		embedding(vocab_size, dim) {
 			register_module("embedding", embedding);
 		}
-		Tensor forward(Tensor &x) {
+		Tensor forward(Tensor x) {
 			return embedding(x);
 		}
 		nn::Embedding embedding;
@@ -62,7 +62,7 @@ namespace llama_torch {
 			cached_cos_mt = register_buffer("cached_cos_mt", cos_mt);
 			cached_sin_mt = register_buffer("cached_sin_mt", sin_mt);
 		}
-		Tensor forward(Tensor &x) {
+		Tensor forward(Tensor x) {
 			// x: (batch_size, seq_len, n_heads, head_dim)
 			int64_t seq_len = x.size(1);
 			// (seq_len, d_model // 2) -> (1, seq_len, 1, d_model // 2)
@@ -106,7 +106,7 @@ namespace llama_torch {
 				register_buffer("cache_k", cache_k);
 				register_buffer("cache_v", cache_v);
 			}
-		Tensor forward(Tensor &x, int start_pos, RotaryEmbedding &rotary_emb, Tensor &mask) {
+		Tensor forward(Tensor x, int start_pos, RotaryEmbedding &rotary_emb, Tensor &mask) {
 			// x: (batch_size, seq_len, d_model)
 			int64_t batch_size = x.size(0);
 			int64_t seq_len = x.size(1);
@@ -164,7 +164,7 @@ namespace llama_torch {
 				register_module("w2", w1);
 				register_module("w3", w1);
 			}
-		Tensor forward(Tensor &x) {
+		Tensor forward(Tensor x) {
 		   return this -> w2(torch::silu(this -> w1(x) * this -> w3(x)));
 		}
 		nn::Linear w1, w2, w3;
@@ -180,7 +180,7 @@ namespace llama_torch {
 			attention_norm(args.dim, args.norm_eps),
 			ffn_norm(args.dim, args.norm_eps)
 			{}
-		Tensor forward(Tensor &x, int start_pos, RotaryEmbedding &rotary_embedding, Tensor &mask) {
+		Tensor forward(Tensor x, int start_pos, RotaryEmbedding &rotary_embedding, Tensor &mask) {
 		   Tensor h = x + this -> attention.forward(this -> attention_norm.forward(x), start_pos, rotary_embedding, mask);
 		   return h + this -> feed_forward.forward(this -> ffn_norm.forward(h));
 		}
@@ -202,7 +202,6 @@ namespace llama_torch {
 				for (int i = 0; i < args.n_layers; i++) {
 					layers.push_back(TransformerBlock(i, args));
 				}
-
 				register_module("lm_head", lm_head);
 		}
 		Tensor forward(Tensor tokens, int start_pos) {
