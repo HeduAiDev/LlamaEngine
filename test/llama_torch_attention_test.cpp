@@ -2,7 +2,7 @@
 
 int main() {
     using namespace llama_torch;
-    auto attention = std::make_shared<Attention>(
+    auto attention = Attention(
         3,
         30,
         768,

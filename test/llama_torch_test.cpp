@@ -17,12 +17,13 @@ int main() {
     /*max_seq_len*/30,
     /*max_batch_size*/ 2
     });
-    auto transformer = std::make_shared<Transformer>(args);
-    std::cout << *transformer << std::endl;
-    // transformer -> to(torch::kCUDA);
+    auto transformer = Transformer(args);
+    std::cout << (transformer) << std::endl;
     Tensor tokens = torch::randint(args.vocab_size, {1, 20});
+    transformer -> to(torch::kCUDA);
+    tokens = tokens.to(torch::kCUDA);
     auto out = transformer->forward(tokens, 0);
     std::cout << out.sizes() << std::endl;
-    std::cout << out << std::endl;
+    // std::cout << out << std::endl;
     return 0;
 }

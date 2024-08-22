@@ -14,6 +14,8 @@ torch::Tensor precompute_freqs_cis(int dim, int end, float theta = 10000.0) {
 // Function to reshape for broadcast
 torch::Tensor reshape_for_broadcast(const torch::Tensor& freqs_cis, const torch::Tensor& x) {
     int ndim = x.dim();
+    std::cout << x.sizes() << std::endl;
+    std::cout << freqs_cis.sizes() << std::endl;
     assert(0 <= 1 && 1 < ndim);
     assert(freqs_cis.sizes() == torch::IntArrayRef({x.size(1), x.size(-1)}));
 
@@ -30,8 +32,8 @@ std::tuple<torch::Tensor, torch::Tensor> apply_rotary_emb(
     const torch::Tensor& xk,
     const torch::Tensor& freqs_cis
 ) {
-    auto xq_ = torch::view_as_complex(xq.to(torch::kFloat32).reshape({xq.size(0), xq.size(1), -1, 2}));
-    auto xk_ = torch::view_as_complex(xk.to(torch::kFloat32).reshape({xk.size(0), xk.size(1), -1, 2}));
+    auto xq_ = torch::view_as_complex(xq.to(torch::kFloat32).reshape({xq.size(0), xq.size(1), xq.size(2), -1, 2}));
+    auto xk_ = torch::view_as_complex(xk.to(torch::kFloat32).reshape({xk.size(0), xk.size(1), xk.size(2), -1, 2}));
     auto freqs_cis_reshaped = reshape_for_broadcast(freqs_cis, xq_);
     auto xq_out = torch::view_as_real(xq_ * freqs_cis_reshaped).flatten(3);
     auto xk_out = torch::view_as_real(xk_ * freqs_cis_reshaped).flatten(3);
@@ -40,15 +42,15 @@ std::tuple<torch::Tensor, torch::Tensor> apply_rotary_emb(
 
 int main() {
     torch::manual_seed(0);
-	Tensor input = torch::randn({3, 20, 768}, torch::kFloat16);
-	auto rope_embed = std::make_shared<RotaryEmbedding>(768, 30, 500000.0);
-	rope_embed -> to(DATA_TYPE);
+	Tensor input = torch::randn({3, 20, 8, 768}, torch::kFloat32);
+	auto rope_embed = RotaryEmbedding(768, 30, 500000.0);
+	rope_embed->to(DATA_TYPE);
 	Tensor rope_out = rope_embed->forward(input);
 
     Tensor freqs_cis = precompute_freqs_cis(768, 30, 500000.0);
     Tensor ground_truth, _;
     std::tie(ground_truth, _) = apply_rotary_emb(input, input, freqs_cis.index({torch::indexing::Slice(0, 20)}));
-    ground_truth = ground_truth.reshape({3, 20, 768});
+    ground_truth = ground_truth.reshape({3, 20, 8, 768});
 	std::cout << "input:" << input.sizes() << std::endl;
 
     std::cout << "ground_truth:" << ground_truth.sizes()  << std::endl;
