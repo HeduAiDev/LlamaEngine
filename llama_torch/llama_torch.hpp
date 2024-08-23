@@ -1,5 +1,6 @@
 #include <torch/torch.h>
 #include<iostream>
+#include <fstream>
 
 using namespace torch;
 #define DATA_TYPE (torch::kFloat32)
@@ -17,18 +18,6 @@ namespace llama_torch {
 		int max_seq_len;
 		int max_batch_size;
 	};
-	class TokenEmbeddingImpl: public torch::nn::Module {
-	public:
-		TokenEmbeddingImpl(int vocab_size, int dim):
-		embedding(vocab_size, dim) {
-			register_module("embedding", embedding);
-		}
-		Tensor forward(Tensor x) {
-			return embedding(x);
-		}
-		nn::Embedding embedding;
-	};
-	TORCH_MODULE(TokenEmbedding);
 
 	class RMSNormImpl : public torch::nn::Module {
 	public:
@@ -239,7 +228,47 @@ namespace llama_torch {
 			h = norm -> forward(h);
 			return output(h);
 		}
-		TokenEmbedding tok_embeddings;
+
+		// Model class is inherited from public nn::Module
+		std::vector<char> get_the_bytes(std::string filename) {
+			std::ifstream input(filename, std::ios::binary);
+			std::vector<char> bytes(
+				(std::istreambuf_iterator<char>(input)),
+				(std::istreambuf_iterator<char>()));
+
+			input.close();
+			return bytes;
+		}
+
+		void load_parameters(std::string pt_pth) {
+			std::vector<char> f = get_the_bytes(pt_pth);
+			c10::Dict<IValue, IValue> weights = torch::pickle_load(f).toGenericDict();
+
+			const torch::OrderedDict<std::string, at::Tensor>& model_params = this -> named_parameters();
+			std::vector<std::string> param_names;
+			for (auto const& w : model_params) {
+				param_names.push_back(w.key());
+			}
+
+			torch::NoGradGuard no_grad;
+			for (auto const& w : weights) {
+				std::string name = w.key().toStringRef();
+				at::Tensor param = w.value().toTensor();
+
+				if (std::find(param_names.begin(), param_names.end(), name) != param_names.end()){
+					auto val = model_params.find(name);
+					param.to(val -> device());
+					param.to(val -> dtype());
+					model_params.find(name)->copy_(param);
+					param = Tensor();
+				} else {
+					std::cout << name << " does not exist among model parameters." << std::endl;
+				};
+
+			}
+		}
+		
+		nn::Embedding tok_embeddings;
 		RotaryEmbedding rotary_embedding;
 		nn::ModuleList layers;
 		RMSNorm norm;

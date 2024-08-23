@@ -3,5 +3,7 @@ build
 cmake_build*
 .vscode
 bin/*
+model/*
 !bin/.gitkeep
+!model/.gitkeep
 !3rd/*/download*
